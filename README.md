@@ -288,3 +288,7 @@ sudo sysctl iogpu.wired_limit_mb=N
 
 The value `N` should be larger than the size of the model in megabytes but
 smaller than the memory size of the machine.
+
+## Contributors
+
+Everyone credited so far: [CONTRIBUTORS.md](CONTRIBUTORS.md).
