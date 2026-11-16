@@ -336,7 +336,7 @@ class GenerationContext:
 class Response:
     text: str
     token: int
-    logprob: float
+    logprob: Optional[float]
     finish_reason: Optional[str]
     top_tokens: Tuple[Dict[str, Any]]
 
@@ -874,6 +874,7 @@ class ResponseGenerator:
                         "stop_reader": stop_sm.reader(),
                         "segment_types": segment_types[::-1],
                         "top_logprobs": args.top_logprobs,
+                        "wants_logprob": args.logprobs or args.top_logprobs > 0,
                     }
                     # just making sure we don't leave a reference around
                     del cache
@@ -988,7 +989,11 @@ class ResponseGenerator:
                             Response(
                                 text,
                                 r.token,
-                                r.logprobs[r.token].item(),
+                                (
+                                    r.logprobs[r.token].item()
+                                    if result["wants_logprob"]
+                                    else None
+                                ),
                                 finish_reason,
                                 _format_top_logprobs(
                                     r.logprobs,
@@ -1132,7 +1137,11 @@ class ResponseGenerator:
                     Response(
                         text,
                         gen.token,
-                        gen.logprobs[gen.token].item(),
+                        (
+                            gen.logprobs[gen.token].item()
+                            if (args.logprobs or args.top_logprobs > 0)
+                            else None
+                        ),
                         finish_reason,
                         _format_top_logprobs(
                             gen.logprobs, args.top_logprobs, tokenizer
